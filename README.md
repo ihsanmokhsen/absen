@@ -74,30 +74,6 @@ php artisan serve
 
 ## Akun Login Default
 
-```text
-BPAD/Admin
-Akun: bpad
-Password: bpad1
-
-SEKRETARIAT
-Akun: sekretariat
-Password: sekretariat1
-
-PENDAPATAN 1
-Akun: pendapatan1
-Password: pendapatan1
-
-PENDAPATAN 2
-Akun: pendapatan2
-Password: pendapatan2
-
-ASET 1
-Akun: aset1
-Password: aset1
-
-ASET 2
-Akun: aset2
-Password: aset2
 ```
 
 Akun bidang hanya dapat mengisi absensi bidangnya masing-masing. Setelah bidang submit untuk satu tanggal, koreksi hanya dapat dilakukan oleh akun `bpad`. Akun `bpad` dapat mengakses semua bidang, rekap, dan data pegawai. Segera ubah password setelah aplikasi dipasang di server produksi.
