@@ -234,6 +234,44 @@ class ExampleTest extends TestCase
             ->assertSeeInOrder(['Pegawai Urutan Pertama', 'Pegawai Urutan Kedua']);
     }
 
+    public function test_employee_create_can_place_new_employee_between_existing_numbers(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        $first = Employee::create([
+            'name' => 'Pegawai Nomor Satu',
+            'bidang' => 'SEKRETARIAT',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+        $third = Employee::create([
+            'name' => 'Pegawai Nomor Tiga',
+            'bidang' => 'SEKRETARIAT',
+            'sort_order' => 2,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('employees.create'))
+            ->assertOk()
+            ->assertSee('Posisi Nomor Urut')
+            ->assertSee('Setelah No. 01 - Pegawai Nomor Satu');
+
+        $this->actingAs($user)
+            ->post(route('employees.store'), [
+                'name' => 'Pegawai Nomor Dua',
+                'bidang' => 'SEKRETARIAT',
+                'is_active' => '1',
+                'position_after' => (string) $first->id,
+            ])
+            ->assertRedirect(route('employees.index'));
+
+        $middle = Employee::where('name', 'Pegawai Nomor Dua')->firstOrFail();
+
+        $this->assertSame(1, $first->fresh()->sort_order);
+        $this->assertSame(2, $middle->sort_order);
+        $this->assertSame(3, $third->fresh()->sort_order);
+    }
+
     public function test_attendance_page_shows_quick_actions_and_confirmation_modal(): void
     {
         $user = User::factory()->create(['is_admin' => true]);

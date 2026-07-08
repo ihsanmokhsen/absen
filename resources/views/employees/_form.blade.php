@@ -18,6 +18,27 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
+    <div class="col-md-6">
+        <label class="form-label" for="position_after">Posisi Nomor Urut</label>
+        <select id="position_after" class="form-select @error('position_after') is-invalid @enderror" name="position_after">
+            @if ($employee->exists)
+                <option value="__keep" @selected(old('position_after', '__keep') === '__keep') data-bidang="__all">Pertahankan posisi sekarang</option>
+            @endif
+            <option value="__last" @selected(old('position_after', $employee->exists ? '__keep' : '__last') === '__last') data-bidang="__all">Otomatis di akhir bidang</option>
+            <option value="__first" @selected(old('position_after') === '__first') data-bidang="__all">Jadikan nomor 01</option>
+            @foreach ($bidangOptions as $bidangOption)
+                @foreach (($positionEmployees->get($bidangOption) ?? collect()) as $positionEmployee)
+                    <option value="{{ $positionEmployee->id }}" @selected((string) old('position_after') === (string) $positionEmployee->id) data-bidang="{{ $bidangOption }}">
+                        Setelah {{ $positionEmployee->attendanceLabel() }}
+                    </option>
+                @endforeach
+            @endforeach
+        </select>
+        <div class="form-text">Nomor pegawai lain akan digeser otomatis sesuai posisi yang dipilih.</div>
+        @error('position_after')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
     <div class="col-md-6 d-flex align-items-end">
         <div class="d-flex flex-column gap-2 mb-2">
             <div class="form-check">
@@ -36,3 +57,44 @@
     <a class="btn btn-outline-secondary" href="{{ route('employees.index') }}">Batal</a>
     <button class="btn btn-primary" type="submit">Simpan</button>
 </div>
+
+@push('scripts')
+<script>
+    (() => {
+        const bidang = document.getElementById('bidang');
+        const position = document.getElementById('position_after');
+
+        if (!bidang || !position) {
+            return;
+        }
+
+        const syncPositionOptions = () => {
+            const selectedBidang = bidang.value;
+            let selectedStillVisible = false;
+
+            Array.from(position.options).forEach((option) => {
+                const optionBidang = option.dataset.bidang || '__all';
+                const isVisible = optionBidang === '__all' || optionBidang === selectedBidang;
+                option.hidden = !isVisible;
+                option.disabled = !isVisible;
+
+                if (option.selected && isVisible) {
+                    selectedStillVisible = true;
+                }
+            });
+
+            if (!selectedStillVisible) {
+                const fallback = Array.from(position.options).find((option) => !option.disabled && option.value === '__last')
+                    || Array.from(position.options).find((option) => !option.disabled);
+
+                if (fallback) {
+                    position.value = fallback.value;
+                }
+            }
+        };
+
+        bidang.addEventListener('change', syncPositionOptions);
+        syncPositionOptions();
+    })();
+</script>
+@endpush
