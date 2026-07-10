@@ -404,6 +404,7 @@
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('submissions.*') ? 'active' : '' }}" href="{{ route('submissions.index') }}">Status Submit</a></li>
                     @if (auth()->user()->isAdmin())
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('recap.*') ? 'active' : '' }}" href="{{ route('recap.index') }}">Rekap Harian</a></li>
+                        <li class="nav-item"><a class="nav-link {{ request()->routeIs('monthly-recap.*') ? 'active' : '' }}" href="{{ route('monthly-recap.index') }}">Rekap Bulanan</a></li>
                         <li class="nav-item"><a class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }}" href="{{ route('employees.index') }}">Pegawai</a></li>
                     @endif
                 </ul>

@@ -152,6 +152,48 @@ class ExampleTest extends TestCase
             ->assertSee('Export PDF / Print');
     }
 
+    public function test_monthly_recap_counts_only_submitted_attendance_and_exports_csv(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        $employee = Employee::create([
+            'name' => 'Pegawai Bulanan',
+            'bidang' => 'SEKRETARIAT',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $employee->attendanceRecords()->create([
+            'attendance_date' => '2026-07-04',
+            'status' => 'HADIR',
+        ]);
+        $employee->attendanceRecords()->create([
+            'attendance_date' => '2026-07-05',
+            'status' => 'SAKIT',
+        ]);
+        AttendanceSubmission::create([
+            'bidang' => 'SEKRETARIAT',
+            'attendance_date' => '2026-07-04',
+            'submitted_by' => $user->id,
+            'submitted_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('monthly-recap.index', ['month' => '2026-07']))
+            ->assertOk()
+            ->assertSee('Rekapitulasi Bulanan Absensi Apel Pagi')
+            ->assertSee('Pegawai Bulanan')
+            ->assertSee('Export CSV')
+            ->assertSeeInOrder(['Hari Submit', 'Hadir', 'Kurang', 'Cuti', 'Izin', 'Sakit'])
+            ->assertSee('<td class="text-center">1</td>', false)
+            ->assertSee('<td class="text-center">0</td>', false);
+
+        $this->actingAs($user)
+            ->get(route('monthly-recap.index', ['month' => '2026-07', 'export' => 'csv']))
+            ->assertOk()
+            ->assertHeader('content-type', 'text/csv; charset=UTF-8')
+            ->assertDownload('rekap-bulanan-absen-2026-07.csv');
+    }
+
     public function test_bidang_user_can_only_submit_own_bidang(): void
     {
         $user = User::factory()->create([
@@ -210,6 +252,7 @@ class ExampleTest extends TestCase
 
         $this->actingAs($user)->get(route('employees.index'))->assertForbidden();
         $this->actingAs($user)->get(route('recap.index'))->assertForbidden();
+        $this->actingAs($user)->get(route('monthly-recap.index'))->assertForbidden();
     }
 
     public function test_attendance_page_uses_seeded_sort_order(): void

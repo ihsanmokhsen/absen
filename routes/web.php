@@ -4,6 +4,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\MonthlyRecapController;
 use App\Http\Controllers\RecapController;
 use App\Http\Controllers\StatusSubmitController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/absensi', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::get('/status-submit', StatusSubmitController::class)->name('submissions.index');
     Route::get('/rekap-harian', RecapController::class)->middleware('admin')->name('recap.index');
+    Route::get('/rekap-bulanan', MonthlyRecapController::class)->middleware('admin')->name('monthly-recap.index');
 
     Route::middleware('admin')->group(function (): void {
         Route::patch('/pegawai/{employee}/nonaktifkan', [EmployeeController::class, 'deactivate'])
