@@ -27,16 +27,26 @@ class MonthlyRecapController extends Controller
         $statusOptions = AttendanceMeta::statuses();
         $absenceStatuses = AttendanceMeta::absenceStatusKeys();
 
-        $submissions = AttendanceSubmission::query()
+        $completeDates = AttendanceSubmission::query()
             ->whereBetween('attendance_date', [$start->toDateString(), $end->toDateString()])
+            ->select('attendance_date')
+            ->groupBy('attendance_date')
+            ->havingRaw('COUNT(DISTINCT bidang) = ?', [count(AttendanceMeta::bidang())])
+            ->pluck('attendance_date')
+            ->map(fn ($date) => $date->toDateString());
+        $submissions = AttendanceSubmission::query()
+            ->whereIn('attendance_date', $completeDates)
             ->orderBy('attendance_date')
             ->get();
         $submittedDaysByBidang = $submissions
             ->groupBy('bidang')
             ->map(fn ($items) => $items->pluck('attendance_date')->map->toDateString()->unique()->count());
 
+        $bidangOrder = collect(AttendanceMeta::bidang())
+            ->map(fn (string $bidang, int $index) => "WHEN bidang = '".str_replace("'", "''", $bidang)."' THEN ".$index)
+            ->implode(' ');
         $employees = Employee::active()
-            ->orderBy('bidang')
+            ->orderByRaw('CASE '.$bidangOrder.' ELSE '.count(AttendanceMeta::bidang()).' END')
             ->orderByRaw('sort_order is null')
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -49,6 +59,7 @@ class MonthlyRecapController extends Controller
             })
             ->select('attendance_records.employee_id', 'attendance_records.status', DB::raw('COUNT(*) as total'))
             ->whereBetween('attendance_records.attendance_date', [$start->toDateString(), $end->toDateString()])
+            ->whereIn('attendance_records.attendance_date', $completeDates)
             ->where('employees.is_active', true)
             ->groupBy('attendance_records.employee_id', 'attendance_records.status')
             ->get()
@@ -62,14 +73,11 @@ class MonthlyRecapController extends Controller
             }
 
             $submittedDays = (int) ($submittedDaysByBidang->get($employee->bidang) ?? 0);
-            $hadir = $counts['HADIR'] ?? 0;
 
             return [
                 'employee' => $employee,
                 'submitted_days' => $submittedDays,
                 'counts' => $counts,
-                'hadir' => $hadir,
-                'kurang' => max($submittedDays - $hadir, 0),
             ];
         });
 
@@ -77,8 +85,6 @@ class MonthlyRecapController extends Controller
             'submitted_days' => $submissions->pluck('attendance_date')->map->toDateString()->unique()->count(),
             'submitted_fields' => $submissions->count(),
             'employees' => $employees->count(),
-            'hadir' => $rows->sum('hadir'),
-            'kurang' => $rows->sum('kurang'),
         ];
 
         if (($validated['export'] ?? null) === 'csv') {
@@ -114,7 +120,6 @@ class MonthlyRecapController extends Controller
                 'Bidang',
                 'Hari Submit Bidang',
                 'Hadir',
-                'Kurang',
                 ...array_map(fn ($status) => $statusOptions[$status], $absenceStatuses),
             ]);
 
@@ -124,8 +129,7 @@ class MonthlyRecapController extends Controller
                     $row['employee']->displayName(),
                     $row['employee']->bidang,
                     $row['submitted_days'],
-                    $row['hadir'],
-                    $row['kurang'],
+                    $row['counts']['HADIR'] ?? 0,
                     ...array_map(fn ($status) => $row['counts'][$status] ?? 0, $absenceStatuses),
                 ]);
             }

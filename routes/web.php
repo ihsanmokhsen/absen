@@ -22,6 +22,9 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/', DashboardController::class)->name('dashboard');
     Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/absensi', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::post('/absensi/submit-semua', [AttendanceController::class, 'storeAll'])
+        ->middleware('admin')
+        ->name('attendance.store-all');
     Route::get('/status-submit', StatusSubmitController::class)->name('submissions.index');
     Route::get('/rekap-harian', RecapController::class)->middleware('admin')->name('recap.index');
     Route::get('/rekap-bulanan', MonthlyRecapController::class)->middleware('admin')->name('monthly-recap.index');

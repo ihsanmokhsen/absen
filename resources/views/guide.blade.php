@@ -115,8 +115,8 @@
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">8</td>
-                    <td>Jika satu bidang sudah benar, tekan Submit Bidang pada bagian bidang tersebut.</td>
-                    <td>Modal Konfirmasi Submit muncul. Periksa jumlahnya, lalu tekan Ya, Submit.</td>
+                    <td>Akun bidang menekan Submit Bidang. Admin BPAD menekan satu tombol Submit Semua Bidang setelah seluruh daftar selesai.</td>
+                    <td>Periksa ringkasan pada modal konfirmasi, lalu lanjutkan submit.</td>
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">9</td>
@@ -126,7 +126,7 @@
                 <tr>
                     <td class="fw-bold text-center">10</td>
                     <td>Admin BPAD membuka Rekap Harian untuk melihat format kertas dan mencetak rekap.</td>
-                    <td>Gunakan tombol Export PDF / Print pada halaman Rekap Harian.</td>
+                    <td>Gunakan tombol Simpan PDF / Cetak pada halaman Rekap Harian atau Rekap Bulanan.</td>
                 </tr>
             </tbody>
         </table>
@@ -154,6 +154,7 @@
                 <li>Dapat melihat semua bidang dalam satu Dashboard.</li>
                 <li>Dapat mengisi, mengubah, atau koreksi absensi semua bidang.</li>
                 <li>Dapat memakai pencarian nama untuk langsung menemukan pegawai.</li>
+                <li>Tekan Submit Semua Bidang satu kali setelah seluruh absensi selesai.</li>
                 <li>Memantau Status Submit 5 Bidang.</li>
                 <li>Mencetak Rekap Harian setelah semua bidang submit.</li>
                 <li>Mengelola data pegawai aktif, nonaktif, dan PPPK.</li>

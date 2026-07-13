@@ -11,7 +11,7 @@
     <form class="d-flex gap-2" method="GET" action="{{ route('recap.index') }}">
         <input class="form-control" type="date" name="date" value="{{ $date }}">
         <button class="btn btn-primary" type="submit">Terapkan</button>
-        <button class="btn btn-outline-primary" type="button" onclick="window.print()">Export PDF / Print</button>
+        <button class="btn btn-outline-primary" type="button" onclick="window.print()">Simpan PDF / Cetak</button>
     </form>
 </div>
 
@@ -21,14 +21,14 @@
     </div>
 @endunless
 
-<div class="print-sheet">
-    <div class="text-center mb-4">
+<div class="print-sheet daily-print-sheet">
+    <header class="report-header text-center mb-4">
         <div class="fw-bold text-uppercase">Pemerintah Provinsi Nusa Tenggara Timur</div>
-        <div class="fw-bold text-uppercase">Badan Pendapatan dan Aset Daerah</div>
+        <div class="fw-bold text-uppercase fs-5">Badan Pendapatan dan Aset Daerah</div>
         <div class="fw-bold text-uppercase mt-2">Rekapitulasi Absensi Apel Pagi</div>
-    </div>
+    </header>
 
-    <table class="table table-bordered mb-4">
+    <table class="table table-bordered report-meta mb-4">
         <tbody>
             <tr>
                 <th style="width: 240px;">Apel Pagi Hari/Tanggal</th>
@@ -38,7 +38,7 @@
     </table>
 
     <div class="table-responsive">
-        <table class="table table-bordered text-center align-middle">
+        <table class="table table-bordered text-center align-middle report-table">
             <thead>
                 <tr>
                     <th>Jumlah</th>
@@ -75,7 +75,7 @@
         <div class="mb-4">
             <div class="fw-bold mb-2">Daftar Nama Keterangan</div>
             <div class="table-responsive">
-                <table class="table table-bordered align-middle mb-0">
+                <table class="table table-bordered align-middle report-table mb-0">
                     <thead>
                         <tr>
                             <th style="width: 160px;">Status</th>
@@ -110,7 +110,7 @@
         </div>
     @endif
 
-    <div class="row mt-5">
+    <div class="row mt-5 report-signature">
         <div class="col-6"></div>
         <div class="col-6 text-center">
             <div>Kupang, {{ now(config('app.timezone'))->translatedFormat('d F Y') }}</div>
@@ -119,3 +119,12 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    @media print {
+        @page { size: A4 portrait; margin: 12mm; }
+        .daily-print-sheet { font-size: 10pt; }
+    }
+</style>
+@endpush

@@ -108,6 +108,39 @@
             padding: 0.75rem 1rem;
         }
 
+        .admin-section-actions {
+            position: static;
+        }
+
+        .admin-submit-all {
+            position: sticky;
+            bottom: 0.75rem;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: 0 0 1.5rem;
+            padding: 1rem;
+            border: 2px solid var(--bpad-blue);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 0.5rem 1.5rem rgba(11, 47, 95, 0.18);
+        }
+
+        .report-header {
+            border-bottom: 3px double #182230;
+            padding-bottom: 0.75rem;
+        }
+
+        .report-meta th {
+            width: 220px;
+        }
+
+        .print-only {
+            display: none;
+        }
+
         .summary-pill {
             border: 1px solid var(--bpad-border);
             border-radius: 999px;
@@ -326,6 +359,12 @@
         }
 
         @media (max-width: 575.98px) {
+            .admin-submit-all {
+                align-items: stretch;
+                flex-direction: column;
+                bottom: 0.35rem;
+            }
+
             .quick-attendance-row {
                 grid-template-columns: 1fr;
             }
@@ -348,7 +387,10 @@
 
             body {
                 background: #fff;
-                font-size: 12pt;
+                color: #000;
+                font-size: 10pt;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
             .no-print,
@@ -370,12 +412,49 @@
                 padding: 0;
             }
 
+            .print-only {
+                display: block !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+            }
+
+            .report-header {
+                margin-bottom: 5mm !important;
+            }
+
+            .report-table {
+                width: 100%;
+                table-layout: auto;
+            }
+
+            .report-table thead {
+                display: table-header-group;
+            }
+
+            .report-table tr,
+            .report-table td,
+            .report-table th {
+                break-inside: avoid;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 0.35rem 0.45rem;
+            }
+
+            .report-signature {
+                break-inside: avoid;
+            }
+
             .table th,
             .table td {
                 border-color: #222 !important;
             }
         }
     </style>
+    @stack('styles')
 </head>
 <body>
 @auth

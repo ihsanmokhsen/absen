@@ -149,12 +149,18 @@ class ExampleTest extends TestCase
             ->assertSee('Cuti: 1')
             ->assertSee('Daftar Nama Keterangan')
             ->assertSee('Pegawai ASET 2')
-            ->assertSee('Export PDF / Print');
+            ->assertSee('Simpan PDF / Cetak');
     }
 
     public function test_monthly_recap_counts_only_submitted_attendance_and_exports_csv(): void
     {
         $user = User::factory()->create(['is_admin' => true]);
+        Employee::create([
+            'name' => 'Pegawai Aset Setelah Sekretariat',
+            'bidang' => 'ASET 1',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
         $employee = Employee::create([
             'name' => 'Pegawai Bulanan',
             'bidang' => 'SEKRETARIAT',
@@ -170,9 +176,17 @@ class ExampleTest extends TestCase
             'attendance_date' => '2026-07-05',
             'status' => 'SAKIT',
         ]);
+        foreach (['SEKRETARIAT', 'PENDAPATAN 1', 'PENDAPATAN 2', 'ASET 1', 'ASET 2'] as $bidang) {
+            AttendanceSubmission::create([
+                'bidang' => $bidang,
+                'attendance_date' => '2026-07-04',
+                'submitted_by' => $user->id,
+                'submitted_at' => now(),
+            ]);
+        }
         AttendanceSubmission::create([
             'bidang' => 'SEKRETARIAT',
-            'attendance_date' => '2026-07-04',
+            'attendance_date' => '2026-07-05',
             'submitted_by' => $user->id,
             'submitted_at' => now(),
         ]);
@@ -182,8 +196,11 @@ class ExampleTest extends TestCase
             ->assertOk()
             ->assertSee('Rekapitulasi Bulanan Absensi Apel Pagi')
             ->assertSee('Pegawai Bulanan')
+            ->assertSeeInOrder(['Pegawai Bulanan', 'Pegawai Aset Setelah Sekretariat'])
             ->assertSee('Export CSV')
-            ->assertSeeInOrder(['Hari Submit', 'Hadir', 'Kurang', 'Cuti', 'Izin', 'Sakit'])
+            ->assertSeeInOrder(['Hari Submit', 'Hadir', 'Cuti', 'Izin', 'Sakit', 'Tugas', 'Tubel', 'Terlambat'])
+            ->assertDontSee('Total Hadir')
+            ->assertDontSee('Total Kurang')
             ->assertSee('<td class="text-center">1</td>', false)
             ->assertSee('<td class="text-center">0</td>', false);
 
@@ -241,6 +258,37 @@ class ExampleTest extends TestCase
                 'status' => [$otherEmployee->id => 'HADIR'],
             ])
             ->assertForbidden();
+    }
+
+    public function test_incomplete_previous_day_is_purged_entirely(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        $employee = Employee::create([
+            'name' => 'Pegawai Data Tidak Lengkap',
+            'bidang' => 'SEKRETARIAT',
+            'is_active' => true,
+        ]);
+        $employee->attendanceRecords()->create([
+            'attendance_date' => '2026-07-05',
+            'status' => 'HADIR',
+        ]);
+        AttendanceSubmission::create([
+            'bidang' => 'SEKRETARIAT',
+            'attendance_date' => '2026-07-05',
+            'submitted_by' => $user->id,
+            'submitted_at' => now(),
+        ]);
+
+        $this->artisan('attendance:purge-incomplete')
+            ->expectsOutputToContain('1 tanggal tidak lengkap dihapus')
+            ->assertSuccessful();
+
+        $this->assertDatabaseMissing('attendance_records', [
+            'attendance_date' => '2026-07-05',
+        ]);
+        $this->assertDatabaseMissing('attendance_submissions', [
+            'attendance_date' => '2026-07-05',
+        ]);
     }
 
     public function test_bidang_user_cannot_open_admin_pages(): void
@@ -385,5 +433,66 @@ class ExampleTest extends TestCase
                 'redirect_to' => 'dashboard',
             ])
             ->assertRedirect(route('dashboard', ['bidang' => 'SEKRETARIAT']));
+    }
+
+    public function test_admin_can_submit_all_bidang_with_one_action(): void
+    {
+        $user = User::factory()->create(['is_admin' => true]);
+        $date = '2026-07-04';
+        $statuses = [];
+
+        foreach (['SEKRETARIAT', 'PENDAPATAN 1', 'PENDAPATAN 2', 'ASET 1', 'ASET 2'] as $index => $bidang) {
+            $employee = Employee::create([
+                'name' => 'Pegawai '.$bidang,
+                'bidang' => $bidang,
+                'is_active' => true,
+            ]);
+            $statuses[$employee->id] = $index === 4 ? 'SAKIT' : 'HADIR';
+        }
+
+        $this->actingAs($user)
+            ->get(route('dashboard', ['date' => $date]))
+            ->assertOk()
+            ->assertSee('Submit Semua Bidang')
+            ->assertDontSee('Submit SEKRETARIAT')
+            ->assertSee('Konfirmasi Submit Semua Bidang');
+
+        $this->actingAs($user)
+            ->post(route('attendance.store-all'), [
+                'attendance_date' => $date,
+                'status' => $statuses,
+            ])
+            ->assertRedirect(route('dashboard', ['date' => $date]))
+            ->assertSessionHas('success', 'Absensi seluruh bidang berhasil disubmit.');
+
+        $this->assertDatabaseCount('attendance_records', 5);
+        $this->assertDatabaseCount('attendance_submissions', 5);
+        $this->assertDatabaseHas('attendance_records', [
+            'attendance_date' => $date,
+            'status' => 'SAKIT',
+        ]);
+
+        foreach (['SEKRETARIAT', 'PENDAPATAN 1', 'PENDAPATAN 2', 'ASET 1', 'ASET 2'] as $bidang) {
+            $this->assertDatabaseHas('attendance_submissions', [
+                'bidang' => $bidang,
+                'attendance_date' => $date,
+                'submitted_by' => $user->id,
+            ]);
+        }
+    }
+
+    public function test_bidang_user_cannot_submit_all_bidang(): void
+    {
+        $user = User::factory()->create([
+            'is_admin' => false,
+            'bidang' => 'ASET 1',
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('attendance.store-all'), [
+                'attendance_date' => '2026-07-04',
+                'status' => [],
+            ])
+            ->assertForbidden();
     }
 }

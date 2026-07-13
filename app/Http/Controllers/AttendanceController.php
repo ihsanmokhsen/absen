@@ -145,4 +145,63 @@ class AttendanceController extends Controller
             ->route($route, ['bidang' => $bidang])
             ->with('success', 'Absensi bidang '.$bidang.' berhasil disimpan.');
     }
+
+    public function storeAll(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403, 'Aksi ini hanya untuk admin BPAD.');
+
+        $validated = $request->validate([
+            'attendance_date' => ['required', 'date'],
+            'status' => ['required', 'array'],
+            'status.*' => ['required', Rule::in(AttendanceMeta::statusKeys())],
+        ]);
+
+        $date = AttendanceMeta::resolveActiveDate($request, $validated['attendance_date']);
+        $employees = Employee::active()
+            ->orderBy('bidang')
+            ->orderByRaw('sort_order is null')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+        $employeeIds = $employees->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $submittedIds = array_keys($validated['status']);
+
+        if (array_diff($submittedIds, $employeeIds) !== [] || array_diff($employeeIds, $submittedIds) !== []) {
+            return back()
+                ->withErrors(['status' => 'Status absensi harus diisi untuk semua pegawai aktif.'])
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($employees, $validated, $date): void {
+            foreach ($employees as $employee) {
+                AttendanceRecord::updateOrCreate(
+                    [
+                        'employee_id' => $employee->id,
+                        'attendance_date' => $date,
+                    ],
+                    [
+                        'status' => $validated['status'][$employee->id],
+                        'note' => null,
+                    ],
+                );
+            }
+
+            foreach (AttendanceMeta::bidang() as $bidang) {
+                AttendanceSubmission::updateOrCreate(
+                    [
+                        'bidang' => $bidang,
+                        'attendance_date' => $date,
+                    ],
+                    [
+                        'submitted_by' => Auth::id(),
+                        'submitted_at' => now(),
+                    ],
+                );
+            }
+        });
+
+        return redirect()
+            ->route('dashboard', ['date' => $date])
+            ->with('success', 'Absensi seluruh bidang berhasil disubmit.');
+    }
 }

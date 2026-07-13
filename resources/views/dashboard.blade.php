@@ -182,18 +182,21 @@
                     @endforeach
                 </div>
 
-                <div class="sticky-submit-bar d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 no-print">
+                <div class="sticky-submit-bar d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 no-print {{ $isAdminView ? 'admin-section-actions' : '' }}">
                     <div class="d-flex flex-wrap gap-2" data-summary-sticky aria-live="polite"></div>
-                    <div class="d-flex justify-content-end gap-2">
-                        @if ($sectionLocked)
-                            <button class="btn btn-primary" type="button" disabled>Sudah Submit</button>
-                        @else
-                            <button class="btn btn-primary" type="submit">{{ $sectionSubmission ? 'Update '.$sectionBidang : 'Submit '.$sectionBidang }}</button>
-                        @endif
-                    </div>
+                    @unless ($isAdminView)
+                        <div class="d-flex justify-content-end gap-2">
+                            @if ($sectionLocked)
+                                <button class="btn btn-primary" type="button" disabled>Sudah Submit</button>
+                            @else
+                                <button class="btn btn-primary" type="submit">Submit {{ $sectionBidang }}</button>
+                            @endif
+                        </div>
+                    @endunless
                 </div>
             </form>
 
+            @unless ($isAdminView)
             <div class="modal fade" id="{{ $sectionKey }}-modal" tabindex="-1" aria-labelledby="{{ $sectionKey }}-title" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -212,10 +215,44 @@
                     </div>
                 </div>
             </div>
+            @endunless
         @endif
         </div>
     </section>
 @endforeach
+
+@if ($isAdminView && $quickSections->sum(fn ($section) => $section['employees']->count()) > 0)
+    <form method="POST" action="{{ route('attendance.store-all') }}" id="submitAllAttendanceForm" class="admin-submit-all no-print">
+        @csrf
+        <input type="hidden" name="attendance_date" value="{{ $date }}">
+        <div data-all-status-inputs></div>
+        <div>
+            <div class="fw-bold">Submit Absensi Seluruh Bidang</div>
+            <div class="small text-secondary">Satu tombol untuk menyimpan dan menandai 5 bidang sudah submit.</div>
+        </div>
+        <button class="btn btn-primary btn-lg" type="submit">{{ $submissions->count() > 0 ? 'Update & Submit Semua Bidang' : 'Submit Semua Bidang' }}</button>
+    </form>
+
+    <div class="modal fade" id="submitAllConfirmModal" tabindex="-1" aria-labelledby="submitAllConfirmTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="submitAllConfirmTitle">Konfirmasi Submit Semua Bidang</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="fw-semibold mb-2">5 Bidang - {{ $formattedDate }}</div>
+                    <div id="submitAllConfirmSummary"></div>
+                    <div class="alert alert-warning mt-3 mb-0 py-2">Pastikan status seluruh pegawai sudah benar sebelum submit.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Periksa Lagi</button>
+                    <button type="button" class="btn btn-primary" id="confirmSubmitAll">Ya, Submit Semua</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 
 <div class="stat-card p-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -266,6 +303,7 @@
         const absenceStatusOrder = @json($absenceStatuses);
         const search = document.getElementById('quickEmployeeSearch');
         const noResults = document.getElementById('quickNoResults');
+        const submitAllForm = document.getElementById('submitAllAttendanceForm');
         const dashboardToday = document.querySelector('[data-dashboard-today]');
         const dashboardClock = document.querySelector('[data-dashboard-clock]');
         const sectionStoragePrefix = 'bpad-section-state:';
@@ -452,6 +490,11 @@
             });
 
             form.addEventListener('submit', (event) => {
+                if (submitAllForm) {
+                    event.preventDefault();
+                    return;
+                }
+
                 if (form.dataset.confirmed === 'true' || !confirmModal) {
                     return;
                 }
@@ -483,6 +526,53 @@
 
             refreshForm(form);
         });
+
+        if (submitAllForm) {
+            const modalElement = document.getElementById('submitAllConfirmModal');
+            const confirmModal = modalElement ? new bootstrap.Modal(modalElement) : null;
+            const confirmSummary = document.getElementById('submitAllConfirmSummary');
+
+            submitAllForm.addEventListener('submit', (event) => {
+                if (submitAllForm.dataset.confirmed === 'true' || !confirmModal) {
+                    return;
+                }
+
+                event.preventDefault();
+                const radios = allStatusRadios();
+                const counts = totals(radios);
+                const employeeCount = groups(radios).length;
+                const rows = [
+                    ['Jumlah Pegawai', employeeCount],
+                    ['Hadir', counts.HADIR || 0],
+                    ['Kurang', employeeCount - (counts.HADIR || 0)],
+                    ...statusOrder
+                        .filter((status) => status !== 'HADIR' && counts[status] > 0)
+                        .map((status) => [statusLabels[status], counts[status]]),
+                ];
+
+                confirmSummary.innerHTML = `<table class="table table-sm table-bordered mb-0"><tbody>${rows
+                    .map(([label, value]) => `<tr><th>${label}</th><td class="text-end">${value}</td></tr>`)
+                    .join('')}</tbody></table>`;
+                confirmModal.show();
+            });
+
+            document.getElementById('confirmSubmitAll')?.addEventListener('click', () => {
+                const inputs = submitAllForm.querySelector('[data-all-status-inputs]');
+                inputs.innerHTML = '';
+
+                allStatusRadios().filter((radio) => radio.checked).forEach((radio) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = radio.name;
+                    input.value = radio.value;
+                    inputs.appendChild(input);
+                });
+
+                submitAllForm.dataset.confirmed = 'true';
+                confirmModal?.hide();
+                submitAllForm.requestSubmit();
+            });
+        }
 
         const filterRows = () => {
             const term = (search?.value || '').trim().toLowerCase();

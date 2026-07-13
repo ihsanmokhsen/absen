@@ -336,7 +336,22 @@ chmod -R 775 storage bootstrap/cache
 chown -R www:www storage bootstrap/cache
 ```
 
-### 9. Cek Aplikasi
+### 9. Aktifkan Pembersihan Absensi Tidak Lengkap
+
+Aplikasi menghapus seluruh data hari sebelumnya apabila submit belum lengkap 5 bidang. Tambahkan cron berikut melalui menu Cron aaPanel atau `crontab -e`:
+
+```cron
+* * * * * cd /www/wwwroot/absen && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Pembersihan dijalankan otomatis setiap hari pukul `00:05` WITA. Untuk menjalankannya manual:
+
+```bash
+cd /www/wwwroot/absen
+php artisan attendance:purge-incomplete
+```
+
+### 10. Cek Aplikasi
 
 Cek dari server:
 
