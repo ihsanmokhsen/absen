@@ -23,7 +23,7 @@
         <div class="stat-card p-3 h-100">
             <div class="stat-label">Target Waktu</div>
             <div class="stat-value">5 Menit</div>
-            <div class="text-secondary mt-2">Gunakan nomor urut cepat, pencarian nama, dan tombol status langsung agar input cepat selesai.</div>
+            <div class="text-secondary mt-2">Gunakan pencarian nama dan tombol status langsung agar input cepat selesai.</div>
         </div>
     </div>
     <div class="col-lg-4">
@@ -43,24 +43,24 @@
 </div>
 
 <div class="stat-card p-4 mb-4">
-    <h2 class="h5 mb-3">Cara Pakai Nomor Urut Cepat</h2>
+    <h2 class="h5 mb-3">Cara Pakai Pencarian Nama Cepat</h2>
     <div class="row g-3">
         <div class="col-md-4">
             <div class="border rounded p-3 h-100 bg-light">
-                <div class="fw-semibold mb-1">1. Pegawai Sebut Nomor</div>
-                <div class="text-secondary">Contoh: pegawai datang lebih awal lalu bilang, "Nomor 12 hadir."</div>
+                <div class="fw-semibold mb-1">1. Pegawai Datang Lebih Awal</div>
+                <div class="text-secondary">Petugas bisa langsung mencari nama pegawai tanpa menunggu panggilan manual.</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="border rounded p-3 h-100 bg-light">
-                <div class="fw-semibold mb-1">2. Petugas Ketik Nomor</div>
-                <div class="text-secondary">Masukkan 12 pada panel Nomor Urut Cepat, lalu tekan Hadir atau Enter.</div>
+                <div class="fw-semibold mb-1">2. Petugas Ketik Nama</div>
+                <div class="text-secondary">Ketik sebagian nama pada kolom pencarian. Daftar pegawai tersaring otomatis.</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="border rounded p-3 h-100 bg-light">
-                <div class="fw-semibold mb-1">3. Nama Langsung Muncul</div>
-                <div class="text-secondary">Sistem fokus ke baris pegawai, menampilkan namanya, dan rekap live ikut berubah.</div>
+                <div class="fw-semibold mb-1">3. Klik Status</div>
+                <div class="text-secondary">Klik Hadir atau status lain. Rekap live langsung berubah mengikuti pilihan petugas.</div>
             </div>
         </div>
     </div>
@@ -90,18 +90,18 @@
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">3</td>
-                    <td>Untuk pegawai yang datang lebih awal dan menyebut nomor, gunakan panel Nomor Urut Cepat.</td>
-                    <td>Ketik nomor, misalnya 01, lalu tekan Hadir. Sistem langsung menampilkan nama dan statusnya menjadi Hadir.</td>
+                    <td>Untuk pegawai yang datang lebih awal, gunakan kolom pencarian nama di Dashboard.</td>
+                    <td>Ketik sebagian nama pegawai. Daftar akan tersaring otomatis tanpa tombol terapkan.</td>
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">4</td>
-                    <td>Jika ingin memastikan nama, klik badge No. pada baris pegawai.</td>
-                    <td>Daftar langsung fokus ke pegawai tersebut dan pesan akan menampilkan nama yang dipilih.</td>
+                    <td>Klik status pegawai sesuai kondisi saat apel.</td>
+                    <td>Di bawah nama harus muncul tulisan Status: Hadir, Izin, Sakit, Tugas, Tubel, Cuti, atau Terlambat.</td>
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">5</td>
-                    <td>Gunakan kolom Cari nomor urut atau nama pegawai jika ingin menyaring daftar.</td>
-                    <td>Ketik nomor atau sebagian nama. Daftar pegawai akan tersaring langsung.</td>
+                    <td>Hapus teks pencarian untuk kembali melihat seluruh daftar pegawai.</td>
+                    <td>Semua bidang yang relevan akan muncul lagi sesuai hak akses akun.</td>
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">6</td>
@@ -140,7 +140,7 @@
             <ol class="mb-0 ps-3">
                 <li>Login dengan akun bidang.</li>
                 <li>Bidang hanya melihat pegawai bidangnya sendiri.</li>
-                <li>Gunakan Nomor Urut Cepat untuk pegawai yang menyebut nomor saat datang.</li>
+                <li>Gunakan pencarian nama cepat untuk pegawai yang datang lebih awal.</li>
                 <li>Ubah status pegawai yang tidak Hadir.</li>
                 <li>Tekan Submit Bidang.</li>
                 <li>Setelah submit, koreksi hanya dapat dilakukan admin BPAD.</li>
@@ -153,7 +153,7 @@
             <ol class="mb-0 ps-3">
                 <li>Dapat melihat semua bidang dalam satu Dashboard.</li>
                 <li>Dapat mengisi, mengubah, atau koreksi absensi semua bidang.</li>
-                <li>Dapat memakai nomor urut untuk langsung fokus ke nama pegawai.</li>
+                <li>Dapat memakai pencarian nama untuk langsung menemukan pegawai.</li>
                 <li>Memantau Status Submit 5 Bidang.</li>
                 <li>Mencetak Rekap Harian setelah semua bidang submit.</li>
                 <li>Mengelola data pegawai aktif, nonaktif, dan PPPK.</li>

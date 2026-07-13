@@ -31,7 +31,7 @@
 
 <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3 no-print">
     <div class="text-secondary">
-        Cari nomor urut atau nama di dashboard kalau ingin cepat. Di halaman ini, nomor urut sudah ditampilkan di depan nama.
+        Gunakan pencarian nama di dashboard kalau ingin input lebih cepat.
     </div>
 </div>
 
@@ -64,7 +64,6 @@
                 <table class="table table-bordered align-middle mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 48px;">No</th>
                             <th>Nama Pegawai</th>
                             <th style="min-width: 420px;">Status</th>
                         </tr>
@@ -74,10 +73,8 @@
                             @php($record = $records->get($employee->id))
                             @php($selectedStatus = old('status.'.$employee->id, $record?->status ?? 'HADIR'))
                             <tr class="attendance-status-row" data-selected-status="{{ $selectedStatus }}">
-                                <td>{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="fw-semibold">
-                                        <span class="badge text-bg-light border text-dark me-2">No. {{ $employee->attendanceNumber() ?? str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                                         {{ $employee->displayName() }}
                                     </div>
                                     <div class="selected-status-line" data-current-status>Status: {{ $statusOptions[$selectedStatus] ?? 'Hadir' }}</div>

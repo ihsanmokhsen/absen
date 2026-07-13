@@ -28,8 +28,8 @@ class ExampleTest extends TestCase
         $this->get(route('guide'))
             ->assertOk()
             ->assertSee('Langkah Cepat dari Login sampai Selesai')
-            ->assertSee('Cara Pakai Nomor Urut Cepat')
-            ->assertSee('Pegawai Sebut Nomor')
+            ->assertSee('Cara Pakai Pencarian Nama Cepat')
+            ->assertSee('Petugas Ketik Nama')
             ->assertSee('Ke Halaman Login');
     }
 
@@ -296,8 +296,8 @@ class ExampleTest extends TestCase
         $this->actingAs($user)
             ->get(route('employees.create'))
             ->assertOk()
-            ->assertSee('Posisi Nomor Urut')
-            ->assertSee('Setelah No. 01 - Pegawai Nomor Satu');
+            ->assertSee('Posisi Pegawai')
+            ->assertSee('Setelah Pegawai Nomor Satu');
 
         $this->actingAs($user)
             ->post(route('employees.store'), [
@@ -332,7 +332,7 @@ class ExampleTest extends TestCase
             ->assertSee('Reset Data')
             ->assertSee('Konfirmasi Submit')
             ->assertSee('Status: Hadir')
-            ->assertSee('No. 01')
+            ->assertDontSee('No. 01')
             ->assertSee('attendanceSummary', false)
             ->assertDontSee('NIP/NIK')
             ->assertDontSee('Catatan');
@@ -355,12 +355,12 @@ class ExampleTest extends TestCase
             ->assertSee('Rekap Harian')
             ->assertSee('data-live-hadir', false)
             ->assertSee('Input Cepat Absensi')
-            ->assertSee('Nomor Urut Cepat')
+            ->assertDontSee('Nomor Urut Cepat')
             ->assertSee('Minimize')
-            ->assertSee('employee-number-jump', false)
-            ->assertSee('Cari nomor urut atau nama pegawai')
+            ->assertDontSee('employee-number-jump', false)
+            ->assertSee('Cari nama pegawai')
             ->assertSee('Nama Cepat Dicari (PPPK)')
-            ->assertSee('No. 01')
+            ->assertDontSee('No. 01')
             ->assertSee('Status: Hadir')
             ->assertSee('quickEmployeeSearch', false)
             ->assertSee('redirect_to', false);

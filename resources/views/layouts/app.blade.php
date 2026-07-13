@@ -290,18 +290,6 @@
             white-space: nowrap;
         }
 
-        .employee-number-jump {
-            border: 1px solid #cbd5e1;
-            padding: 0.18rem 0.55rem;
-            font-size: 0.82rem;
-            line-height: 1.1;
-        }
-
-        .employee-number-jump:hover,
-        .employee-number-jump:focus {
-            filter: brightness(0.97);
-        }
-
         .row-pulse {
             animation: row-pulse 0.9s ease;
         }

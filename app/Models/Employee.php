@@ -32,22 +32,6 @@ class Employee extends Model
         return $this->name.($this->is_pppk ? ' (PPPK)' : '');
     }
 
-    public function attendanceNumber(): ?string
-    {
-        if ($this->sort_order === null) {
-            return null;
-        }
-
-        return str_pad((string) $this->sort_order, 2, '0', STR_PAD_LEFT);
-    }
-
-    public function attendanceLabel(): string
-    {
-        $number = $this->attendanceNumber();
-
-        return ($number ? 'No. '.$number.' - ' : '').$this->displayName();
-    }
-
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);

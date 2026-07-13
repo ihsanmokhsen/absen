@@ -37,7 +37,6 @@
         <table class="table table-bordered align-middle mb-0">
             <thead>
                 <tr>
-                    <th style="width: 48px;">No</th>
                     <th>Nama</th>
                     <th>Bidang</th>
                     <th>Status</th>
@@ -47,8 +46,7 @@
             <tbody>
                 @forelse ($employees as $employee)
                     <tr>
-                        <td>{{ $employee->attendanceNumber() ?? str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</td>
-                        <td class="fw-semibold">{{ $employee->attendanceLabel() }}</td>
+                        <td class="fw-semibold">{{ $employee->displayName() }}</td>
                         <td>{{ $employee->bidang }}</td>
                         <td>
                             @if ($employee->is_active)
@@ -72,7 +70,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td class="text-center text-secondary py-4" colspan="5">Tidak ada data pegawai.</td>
+                        <td class="text-center text-secondary py-4" colspan="4">Tidak ada data pegawai.</td>
                     </tr>
                 @endforelse
             </tbody>

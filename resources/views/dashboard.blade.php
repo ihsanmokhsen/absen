@@ -99,22 +99,8 @@
         <div class="text-secondary">{{ $isAdminView ? 'Semua bidang' : ($bidangOptions[0] ?? '-') }} - {{ $formattedDate }}</div>
     </div>
     <div class="no-print" style="min-width: min(100%, 420px);">
-        <input class="form-control form-control-lg" id="quickEmployeeSearch" type="search" placeholder="Cari nomor urut atau nama pegawai..." autocomplete="off">
+        <input class="form-control form-control-lg" id="quickEmployeeSearch" type="search" placeholder="Cari nama pegawai..." autocomplete="off">
     </div>
-</div>
-
-<div class="stat-card p-3 mb-3 no-print">
-    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-2">
-        <div>
-            <div class="fw-semibold">Nomor Urut Cepat</div>
-            <div class="text-secondary small">Ketik nomor lalu tekan Hadir. Cocok untuk pegawai yang datang lebih awal.</div>
-        </div>
-        <div class="d-flex flex-column flex-sm-row gap-2" style="min-width: min(100%, 360px);">
-            <input class="form-control" id="quickNumberLookup" type="text" inputmode="numeric" placeholder="No. urut, contoh 01">
-            <button class="btn btn-primary" type="button" id="quickNumberPresentBtn">Hadir</button>
-        </div>
-    </div>
-    <div class="small text-secondary mt-2 d-none" id="quickNumberMessage" aria-live="polite"></div>
 </div>
 
 <div class="text-center text-secondary py-3 d-none" id="quickNoResults">Nama tidak ditemukan.</div>
@@ -177,10 +163,9 @@
                     @foreach ($sectionEmployees as $employee)
                         @php($record = $sectionRecords->get($employee->id))
                         @php($selectedStatus = old('status.'.$employee->id, $record?->status ?? 'HADIR'))
-                        <div class="quick-attendance-row attendance-status-row" data-name="{{ \Illuminate\Support\Str::lower($employee->displayName()) }}" data-label="{{ $employee->attendanceLabel() }}" data-number="{{ $employee->attendanceNumber() }}" data-search="{{ \Illuminate\Support\Str::lower(($employee->attendanceNumber() ? 'No. '.$employee->attendanceNumber().' ' : '').$employee->displayName()) }}" data-selected-status="{{ $selectedStatus }}">
+                        <div class="quick-attendance-row attendance-status-row" data-name="{{ \Illuminate\Support\Str::lower($employee->displayName()) }}" data-label="{{ $employee->displayName() }}" data-search="{{ \Illuminate\Support\Str::lower($employee->displayName()) }}" data-selected-status="{{ $selectedStatus }}">
                             <div>
                                 <div class="fw-semibold">
-                                    <button class="badge text-bg-light border text-dark me-2 employee-number-jump" type="button" data-number-jump="{{ $employee->attendanceNumber() ?? str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}">No. {{ $employee->attendanceNumber() ?? str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</button>
                                     {{ $employee->displayName() }}
                                 </div>
                                 <div class="selected-status-line" data-current-status>Status: {{ $statusOptions[$selectedStatus] ?? 'Hadir' }}</div>
@@ -280,9 +265,6 @@
         const statusOrder = Object.keys(statusLabels);
         const absenceStatusOrder = @json($absenceStatuses);
         const search = document.getElementById('quickEmployeeSearch');
-        const quickNumberLookup = document.getElementById('quickNumberLookup');
-        const quickNumberPresentBtn = document.getElementById('quickNumberPresentBtn');
-        const quickNumberMessage = document.getElementById('quickNumberMessage');
         const noResults = document.getElementById('quickNoResults');
         const dashboardToday = document.querySelector('[data-dashboard-today]');
         const dashboardClock = document.querySelector('[data-dashboard-clock]');
@@ -362,24 +344,6 @@
             }
         };
 
-        const showQuickNumberMessage = (message, tone = 'secondary') => {
-            if (!quickNumberMessage) {
-                return;
-            }
-
-            quickNumberMessage.textContent = message;
-            quickNumberMessage.className = `small mt-2 text-${tone}`;
-            quickNumberMessage.classList.remove('d-none');
-        };
-
-        const rowLabelText = (row) => {
-            return row?.dataset.label || '';
-        };
-
-        const clearQuickNumberMessage = () => {
-            quickNumberMessage?.classList.add('d-none');
-        };
-
         const sectionKeyFor = (section) => `${sectionStoragePrefix}${section.dataset.storageKey || ''}`;
 
         const sectionBodyFor = (section) => section.querySelector('.quick-bidang-body');
@@ -415,66 +379,6 @@
             }
 
             setSectionCollapsed(section, false, false);
-        };
-
-        const findRowByNumber = (rawNumber) => {
-            const digits = String(rawNumber || '').replace(/\D+/g, '');
-
-            if (!digits) {
-                return null;
-            }
-
-            const normalized = digits.padStart(2, '0');
-
-            return document.querySelector(`.quick-attendance-row[data-number="${normalized}"]`)
-                || document.querySelector(`.quick-attendance-row[data-number="${digits}"]`)
-                || null;
-        };
-
-        const setRowToPresent = (row) => {
-            if (!row) {
-                return false;
-            }
-
-            const presentInput = row.querySelector('input[value="HADIR"]');
-
-            if (!presentInput || presentInput.disabled) {
-                return false;
-            }
-
-            presentInput.checked = true;
-            presentInput.dispatchEvent(new Event('change', { bubbles: true }));
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            row.classList.add('row-pulse');
-            window.setTimeout(() => row.classList.remove('row-pulse'), 900);
-
-            return true;
-        };
-
-        const jumpToRow = (number) => {
-            const row = findRowByNumber(number);
-
-            if (!row) {
-                showQuickNumberMessage('Nomor urut tidak ditemukan.', 'danger');
-                return null;
-            }
-
-            if (search) {
-                search.value = number;
-                filterRows();
-            }
-
-            const section = row.closest('.quick-bidang-section');
-            if (section) {
-                setSectionCollapsed(section, false);
-            }
-
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            row.classList.add('row-pulse');
-            window.setTimeout(() => row.classList.remove('row-pulse'), 900);
-            showQuickNumberMessage(`Fokus ke ${rowLabelText(row)}.`, 'primary');
-
-            return row;
         };
 
         const syncRows = (radios) => {
@@ -627,43 +531,6 @@
             });
         });
 
-        const quickNumberSubmit = () => {
-            const row = jumpToRow(quickNumberLookup?.value || '');
-
-            if (!row) {
-                return;
-            }
-
-            const numberText = row.dataset.number || quickNumberLookup.value.trim();
-
-            if (!setRowToPresent(row)) {
-                showQuickNumberMessage(`Nomor ${numberText} tidak bisa diubah karena bidang sudah terkunci.`, 'warning');
-                return;
-            }
-
-            if (search) {
-                search.value = numberText;
-                filterRows();
-            }
-
-            showQuickNumberMessage(`${rowLabelText(row)} sudah diset Hadir.`, 'success');
-            renderLiveRecap();
-        };
-
-        quickNumberLookup?.addEventListener('input', clearQuickNumberMessage);
-        quickNumberLookup?.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                quickNumberSubmit();
-            }
-        });
-        quickNumberPresentBtn?.addEventListener('click', quickNumberSubmit);
-
-        document.querySelectorAll('.employee-number-jump').forEach((button) => {
-            button.addEventListener('click', () => {
-                jumpToRow(button.dataset.numberJump || '');
-            });
-        });
     })();
 </script>
 @endpush

@@ -92,7 +92,6 @@
                                         <ol class="mb-0 ps-3">
                                             @foreach ($recordsByStatus as $record)
                                                 <li>
-                                                    <span class="badge text-bg-light border text-dark me-1">No. {{ $record->employee->attendanceNumber() ?? '-' }}</span>
                                                     {{ $record->employee->displayName() }}
                                                     <span class="text-secondary">({{ $record->employee->bidang }})</span>
                                                     @if ($record->note)

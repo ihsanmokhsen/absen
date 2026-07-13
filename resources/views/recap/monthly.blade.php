@@ -111,7 +111,6 @@
                     <tr>
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td>
-                            <span class="badge text-bg-light border text-dark me-1">No. {{ $row['employee']->attendanceNumber() ?? '-' }}</span>
                             <span class="fw-semibold">{{ $row['employee']->displayName() }}</span>
                         </td>
                         <td>{{ $row['employee']->bidang }}</td>

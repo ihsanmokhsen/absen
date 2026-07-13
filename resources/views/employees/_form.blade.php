@@ -19,22 +19,22 @@
         @enderror
     </div>
     <div class="col-md-6">
-        <label class="form-label" for="position_after">Posisi Nomor Urut</label>
+        <label class="form-label" for="position_after">Posisi Pegawai</label>
         <select id="position_after" class="form-select @error('position_after') is-invalid @enderror" name="position_after">
             @if ($employee->exists)
                 <option value="__keep" @selected(old('position_after', '__keep') === '__keep') data-bidang="__all">Pertahankan posisi sekarang</option>
             @endif
             <option value="__last" @selected(old('position_after', $employee->exists ? '__keep' : '__last') === '__last') data-bidang="__all">Otomatis di akhir bidang</option>
-            <option value="__first" @selected(old('position_after') === '__first') data-bidang="__all">Jadikan nomor 01</option>
+            <option value="__first" @selected(old('position_after') === '__first') data-bidang="__all">Jadikan paling atas</option>
             @foreach ($bidangOptions as $bidangOption)
                 @foreach (($positionEmployees->get($bidangOption) ?? collect()) as $positionEmployee)
                     <option value="{{ $positionEmployee->id }}" @selected((string) old('position_after') === (string) $positionEmployee->id) data-bidang="{{ $bidangOption }}">
-                        Setelah {{ $positionEmployee->attendanceLabel() }}
+                        Setelah {{ $positionEmployee->displayName() }}
                     </option>
                 @endforeach
             @endforeach
         </select>
-        <div class="form-text">Nomor pegawai lain akan digeser otomatis sesuai posisi yang dipilih.</div>
+        <div class="form-text">Urutan pegawai lain akan digeser otomatis sesuai posisi yang dipilih.</div>
         @error('position_after')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror

@@ -5,7 +5,7 @@
 @section('content')
 <div class="mb-4">
     <h1 class="h3 page-title mb-1">Edit Pegawai</h1>
-    <div class="text-secondary">{{ $employee->attendanceLabel() }}</div>
+    <div class="text-secondary">{{ $employee->displayName() }}</div>
 </div>
 
 <div class="stat-card p-4">
