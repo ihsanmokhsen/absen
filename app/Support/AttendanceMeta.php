@@ -22,7 +22,7 @@ class AttendanceMeta
         'TUGAS' => 'Tugas',
         'TUBEL' => 'Tubel',
         'CUTI' => 'Cuti',
-        'TERLAMBAT' => 'Terlambat',
+        'TERLAMBAT' => 'Tanpa Berita',
     ];
 
     public const ABSENCE_STATUSES = [

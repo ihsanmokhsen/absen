@@ -19,7 +19,7 @@ Aplikasi web sederhana untuk input absensi apel pagi harian pegawai BPAD Provins
 - CRUD pegawai dan nonaktifkan pegawai
 - Filter pegawai berdasarkan bidang
 - Input absensi per tanggal dan per bidang
-- Status absensi: Hadir, Izin, Sakit, Tugas, Tubel, Cuti, Terlambat
+- Status absensi: Hadir, Izin, Sakit, Tugas, Tubel, Cuti, Tanpa Berita
 - Validasi submit satu kali per bidang per tanggal dengan opsi edit oleh admin
 - Status Submit 5 Bidang
 - Dashboard ringkas

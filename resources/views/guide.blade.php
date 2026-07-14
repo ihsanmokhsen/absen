@@ -96,7 +96,7 @@
                 <tr>
                     <td class="fw-bold text-center">4</td>
                     <td>Klik status pegawai sesuai kondisi saat apel.</td>
-                    <td>Di bawah nama harus muncul tulisan Status: Hadir, Izin, Sakit, Tugas, Tubel, Cuti, atau Terlambat.</td>
+                    <td>Di bawah nama harus muncul tulisan Status: Hadir, Izin, Sakit, Tugas, Tubel, Cuti, atau Tanpa Berita.</td>
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">5</td>
@@ -106,7 +106,7 @@
                 <tr>
                     <td class="fw-bold text-center">6</td>
                     <td>Untuk pegawai yang tidak Hadir, klik tombol status yang sesuai.</td>
-                    <td>Di bawah nama harus muncul tulisan Status: Izin, Sakit, Tugas, Tubel, Cuti, atau Terlambat.</td>
+                    <td>Di bawah nama harus muncul tulisan Status: Izin, Sakit, Tugas, Tubel, Cuti, atau Tanpa Berita.</td>
                 </tr>
                 <tr>
                     <td class="fw-bold text-center">7</td>

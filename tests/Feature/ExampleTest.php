@@ -198,7 +198,7 @@ class ExampleTest extends TestCase
             ->assertSee('Pegawai Bulanan')
             ->assertSeeInOrder(['Pegawai Bulanan', 'Pegawai Aset Setelah Sekretariat'])
             ->assertSee('Export CSV')
-            ->assertSeeInOrder(['Hari Submit', 'Hadir', 'Cuti', 'Izin', 'Sakit', 'Tugas', 'Tubel', 'Terlambat'])
+            ->assertSeeInOrder(['Hari Submit', 'Hadir', 'Cuti', 'Izin', 'Sakit', 'Tugas', 'Tubel', 'Tanpa Berita'])
             ->assertDontSee('Total Hadir')
             ->assertDontSee('Total Kurang')
             ->assertSee('<td class="text-center">1</td>', false)
