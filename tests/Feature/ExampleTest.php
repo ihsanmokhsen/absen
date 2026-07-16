@@ -155,7 +155,7 @@ class ExampleTest extends TestCase
     public function test_monthly_recap_counts_only_submitted_attendance_and_exports_csv(): void
     {
         $user = User::factory()->create(['is_admin' => true]);
-        Employee::create([
+        $assetEmployee = Employee::create([
             'name' => 'Pegawai Aset Setelah Sekretariat',
             'bidang' => 'ASET 1',
             'sort_order' => 1,
@@ -175,6 +175,10 @@ class ExampleTest extends TestCase
         $employee->attendanceRecords()->create([
             'attendance_date' => '2026-07-05',
             'status' => 'SAKIT',
+        ]);
+        $assetEmployee->attendanceRecords()->create([
+            'attendance_date' => '2026-07-04',
+            'status' => 'TERLAMBAT',
         ]);
         foreach (['SEKRETARIAT', 'PENDAPATAN 1', 'PENDAPATAN 2', 'ASET 1', 'ASET 2'] as $bidang) {
             AttendanceSubmission::create([
@@ -198,17 +202,29 @@ class ExampleTest extends TestCase
             ->assertSee('Pegawai Bulanan')
             ->assertSeeInOrder(['Pegawai Bulanan', 'Pegawai Aset Setelah Sekretariat'])
             ->assertSee('Export CSV')
+            ->assertSee('Insight Kehadiran Bulanan')
+            ->assertSee('Prioritas Tindak Lanjut Tanpa Berita')
+            ->assertSee('Kejadian Tanpa Berita')
+            ->assertSee('Pegawai Aset Setelah Sekretariat')
+            ->assertSee('1 kejadian')
             ->assertSeeInOrder(['Hari Submit', 'Hadir', 'Cuti', 'Izin', 'Sakit', 'Tugas', 'Tubel', 'Tanpa Berita'])
             ->assertDontSee('Total Hadir')
             ->assertDontSee('Total Kurang')
             ->assertSee('<td class="text-center">1</td>', false)
             ->assertSee('<td class="text-center">0</td>', false);
 
-        $this->actingAs($user)
-            ->get(route('monthly-recap.index', ['month' => '2026-07', 'export' => 'csv']))
+        $exportResponse = $this->actingAs($user)
+            ->get(route('monthly-recap.index', ['month' => '2026-07', 'export' => 'csv']));
+
+        $exportResponse
             ->assertOk()
             ->assertHeader('content-type', 'text/csv; charset=UTF-8')
             ->assertDownload('rekap-bulanan-absen-2026-07.csv');
+
+        $exportContent = $exportResponse->streamedContent();
+        $this->assertStringContainsString('INSIGHT KEHADIRAN BULANAN', $exportContent);
+        $this->assertStringContainsString('PRIORITAS TINDAK LANJUT TANPA BERITA', $exportContent);
+        $this->assertStringContainsString('Pegawai Aset Setelah Sekretariat', $exportContent);
     }
 
     public function test_bidang_user_can_only_submit_own_bidang(): void
